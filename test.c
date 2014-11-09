@@ -1,3 +1,32 @@
+
+void calibrateMotor(tMotor motor_name)
+{
+	bool doneCalibration = false;
+	while(!doneCalibration)
+	{
+		if (nNxtButtonPressed == 	2)
+			motor[motor_name] = 20;
+		if (nNxtButtonPressed == 1)
+			motor[motor_name] = -20;
+		if (nNxtButtonPressed == -1)
+			motor[motor_name] = 0;
+		if (nNxtButtonPressed == 3)
+		{
+			motor[motor_name] = 0;
+			doneCalibration = true;
+		}
+	}
+	while(nNxtButtonPressed != -1);
+}
+void calibrate()
+{
+		calibrateMotor(motorA);
+		calibrateMotor(motorB);
+		calibrateMotor(motorC);
+}
+
+
+
 //Gear ratio, motorB to arm: 1:5
 void rotateLeft(int speed, int angle)
 {
@@ -51,20 +80,5 @@ void motorsOff()
 
 task main()
 {
-	for (int i = 0; i < 5; i++)
-	{
-		rotateLeft(30, 90);
-		armOneDown(30, 45);
-		armTwoUp(5,90);
-
-		motorsOff();
-		wait1Msec(1000);
-
-		rotateRight(30,90);
-		armOneUp(30,45);
-		armTwoDown(5,90);
-
-		motorsOff();
-		wait1Msec(1000);
-	}
+	calibrate();
 }
