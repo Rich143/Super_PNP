@@ -35,6 +35,7 @@ void rotateLeft(int speed, int angle)
 	while (nMotorEncoder[motorA] < angle);
 	motor[motorA] = 0;
 }
+
 void rotateRight(int speed, int angle)
 {
 	motor[motorA] = -speed;
@@ -81,4 +82,6 @@ void motorsOff()
 task main()
 {
 	calibrate();
+
+
 }
