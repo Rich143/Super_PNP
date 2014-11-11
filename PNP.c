@@ -1,6 +1,6 @@
-void move(int armOneUp, int armTwoUp, int left, int speed)
+// @angle: Angle to rotate motor A, cCW being positive
+void move(int speed, int armOneUp, int armTwoUp, int rotate)
 {
-	int genSpeed = 20;
 	bool moving  = false, done = false;
 	bool motorsOff[3] = {0, 0, 0};
 
@@ -18,14 +18,14 @@ void move(int armOneUp, int armTwoUp, int left, int speed)
 			else
 				motor[motorB] = -speed;
 
-			if (left > 0)
+			if (angle > 0)
 				motor[motorC] = speed;
 			else
 				motor[motorC] = -speed;
 
 			moving = true;
 		}
-		if (abs(nMotorEncoder[motorA]) < abs(left))
+		if (abs(nMotorEncoder[motorA]) < abs(angle))
 		{
 			motor[motorA] = 0;
 			motorsOff[0] = true;
@@ -45,6 +45,7 @@ void move(int armOneUp, int armTwoUp, int left, int speed)
 		{
 			done = true;
 		}
+	}
 }
 
 void calibrateMotor(tMotor motor_name)
@@ -66,6 +67,7 @@ void calibrateMotor(tMotor motor_name)
 	}
 	while(nNxtButtonPressed != -1);
 }
+
 void calibrate()
 {
 		calibrateMotor(motorA);
@@ -124,7 +126,9 @@ void armTwoDown(int speed, int angle)
 void pickUp()
 {
 	armOneDown(20, 20);
-	arm
+	move(20, 20, -10 );
+	move(20, 30, -10);
+}
 void motorsOff()
 {
 	motor[motorA] = 0;
