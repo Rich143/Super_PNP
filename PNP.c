@@ -129,6 +129,8 @@ void pickUp()
 	move(20, 20, -10 );
 	move(20, 30, -10);
 }
+
+x
 void motorsOff()
 {
 	motor[motorA] = 0;
