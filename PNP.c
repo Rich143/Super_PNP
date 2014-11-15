@@ -15,7 +15,23 @@ typedef struct{
 	int angleA;
 	int angleB;
 	int angleC;
-	char color; //one letter per color
+	int color; //one letter per color
+	
+	Position()
+	{
+		angleA = 0;
+		angleB = 0;
+		angleC = 0;
+		color = 1;
+	}
+	
+	Position(int a0, int b0, int c0, int col0)
+	{
+		angleA = a0;
+		angleB = b0;
+		angleC = c0;
+		color = col0;
+	}
 } Position;
 
 typedef struct{
@@ -27,6 +43,8 @@ task main()
 {
 	SensorType[S1] = sensorTouch;
 	calibrate();
+
+	Position p1 = 
 
 	move(20,90,-20,-20);
 	wait1Msec(1000);
@@ -179,7 +197,6 @@ void motorsOff()
 
 void pickUp()
 {
-	//armOneDown(20, 20);
 	move(20, 20, -10, 0);
 	move(20, -30, -10, 0);
 }
