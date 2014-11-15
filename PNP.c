@@ -19,9 +19,9 @@ typedef struct{
 } Position;
 
 typedef struct{
-	Position positions[6];
+	Position positions[5];
 	int size;
-} Platform;
+} Column;
 
 task main()
 {
