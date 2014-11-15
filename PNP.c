@@ -10,6 +10,8 @@ void motorsOff();
 void checkIfDone();
 int roundSpeed(float val);
 
+void moveToLocation(Position newPosition);
+
 
 typedef struct{
 	int angleA;
@@ -44,7 +46,7 @@ task main()
 	SensorType[S1] = sensorTouch;
 	calibrate();
 
-	Position p1 = 
+	Position p1 = (45, 45, 45, 1);
 
 	move(20,90,-20,-20);
 	wait1Msec(1000);
@@ -96,6 +98,53 @@ bool reachedAngle(int encoder, int endAngle, int dir)
 // @innerArmUp: positive angles are up
 // @angle: Angle to rotate motor A, cCW being positive
 void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
+{
+	motorsOff();
+
+	int angleChangeA, angleChangeB, angleChangeC;
+	//incorporates gear ratios
+	angleChangeA = 7 * rotateCCW;
+	angleChangeB = 6 * innerArmUp;
+	angleChangeC = 3 * outerArmUp;
+
+	int endAngleA, endAngleB, endAngleC;
+
+	endAngleA = nMotorEncoder[motorA] + angleChangeA;
+	endAngleB = nMotorEncoder[motorB] + angleChangeB;
+	endAngleC = nMotorEncoder[motorC] + angleChangeC;
+
+	int speedA, speedB, speedC;
+
+	getSpeeds(speed, angleChangeA, angleChangeB, angleChangeC, speedA, speedB, speedC);
+
+	motor[motorA] = speedA;
+	motor[motorB] = speedB;
+	motor[motorC] = speedC;
+
+	bool leftA = false, upB = false, upC = false;
+
+	if (rotateCCW > 0)
+		leftA = true;
+	if(innerArmUp > 0)
+		upB = true;
+	if (outerArmUp > 0)
+		upC = true;
+
+
+	//while at least one motor is still running
+	while (motor[motorA] != 0 || motor[motorB] != 0 || motor[motorC] != 0)
+	{
+		checkIfDone();
+		if (motor[motorA] != 0 && reachedAngle(nMotorEncoder[motorA], endAngleA, leftA))
+			motor[motorA] = 0;
+		if (motor[motorB] != 0 && reachedAngle(nMotorEncoder[motorB], endAngleB, upB))
+			motor[motorB] = 0;
+		if (motor[motorC] != 0 && reachedAngle(nMotorEncoder[motorC], endAngleC, upC))
+			motor[motorC] = 0;
+	}
+}
+
+void moveToLocation(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
 {
 	motorsOff();
 
