@@ -39,14 +39,8 @@ task main()
 	displayAngles(startPosition);
 	wait10Msec(200);
 
-	Position p1;
-	p1.angleA = 90;
-	p1.angleB = -45;
-	p1.angleC = -45;
-	p1.color = 1;
 
-	moveToLocation(20, startPosition, p1);
-	wait10msec(1000);
+
 
 	//pickUp();
 }
@@ -144,7 +138,7 @@ void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
 void moveToLocation(int speed, Position startPosition, Position endPosition)
 {
 	motorsOff();
-	move(speed, endPosition.angleA - startPosition.angleC, endPosition.angleC - startPosition.angleC, endPosition.angleC - startPosition.angleC);
+	move(speed, endPosition.angleA - startPosition.angleA, endPosition.angleB - startPosition.angleB, endPosition.angleC - startPosition.angleC);
 	displayAngles(endPosition);
 }
 
@@ -231,3 +225,36 @@ int roundSpeed(float val)
 	else
 		return (int)floor(val);
 }
+
+
+// Test code 1: Multiple position moves
+/*
+Position p1;
+	p1.angleA = 90;
+	p1.angleB = 45;
+	p1.angleC = -45;
+	p1.color = 1;
+
+	Position p2;
+	p2.angleA = 0;
+	p2.angleB = 20;
+	p2.angleC = 0;
+	p2.color = 1;
+
+	Position p3;
+	p3.angleA = -45;
+	p3.angleB = 90;
+	p3.angleC = -70;
+	p3.color = 1;
+
+	moveToLocation(20, startPosition, p1);
+	wait10msec(200);
+	moveToLocation(20, p1, startPosition);
+	wait10msec(200);
+	moveToLocation(20, startPosition, p2);
+	wait10msec(200);
+	moveToLocation(20, p2, p3);
+	wait10msec(200);
+	moveToLocation(20, p3, startPosition);
+
+*/
