@@ -9,18 +9,41 @@ void calibrate();
 void pickUp();
 void motorsOff();
 void checkIfDone();
+<<<<<<< HEAD
+=======
+int roundSpeed(float val);
+
+void moveToLocation(Position newPosition);
+
+>>>>>>> origin/master
 
 typedef struct{
 	int angleA;
 	int angleB;
 	int angleC;
-	char color; //one letter per color
+	int color; //one letter per color
+	
+	Position()
+	{
+		angleA = 0;
+		angleB = 0;
+		angleC = 0;
+		color = 1;
+	}
+	
+	Position(int a0, int b0, int c0, int col0)
+	{
+		angleA = a0;
+		angleB = b0;
+		angleC = c0;
+		color = col0;
+	}
 } Position;
 
 typedef struct{
-	Position positions[6];
+	Position positions[5];
 	int size;
-} Platform;
+} Column;
 
 task main()
 {
@@ -28,9 +51,14 @@ task main()
 	calibrate();
 	pickUp();
 
+<<<<<<< HEAD
 
 	move(30, -45, 10, 0);
   /*
+=======
+	Position p1 = (45, 45, 45, 1);
+
+>>>>>>> origin/master
 	move(20,90,-20,-20);
 	wait1Msec(1000);
 
@@ -82,6 +110,53 @@ bool reachedAngle(int encoder, int endAngle, int dir)
 // @innerArmUp: positive angles are up
 // @angle: Angle to rotate motor A, cCW being positive
 void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
+{
+	motorsOff();
+
+	int angleChangeA, angleChangeB, angleChangeC;
+	//incorporates gear ratios
+	angleChangeA = 7 * rotateCCW;
+	angleChangeB = 6 * innerArmUp;
+	angleChangeC = 3 * outerArmUp;
+
+	int endAngleA, endAngleB, endAngleC;
+
+	endAngleA = nMotorEncoder[motorA] + angleChangeA;
+	endAngleB = nMotorEncoder[motorB] + angleChangeB;
+	endAngleC = nMotorEncoder[motorC] + angleChangeC;
+
+	int speedA, speedB, speedC;
+
+	getSpeeds(speed, angleChangeA, angleChangeB, angleChangeC, speedA, speedB, speedC);
+
+	motor[motorA] = speedA;
+	motor[motorB] = speedB;
+	motor[motorC] = speedC;
+
+	bool leftA = false, upB = false, upC = false;
+
+	if (rotateCCW > 0)
+		leftA = true;
+	if(innerArmUp > 0)
+		upB = true;
+	if (outerArmUp > 0)
+		upC = true;
+
+
+	//while at least one motor is still running
+	while (motor[motorA] != 0 || motor[motorB] != 0 || motor[motorC] != 0)
+	{
+		checkIfDone();
+		if (motor[motorA] != 0 && reachedAngle(nMotorEncoder[motorA], endAngleA, leftA))
+			motor[motorA] = 0;
+		if (motor[motorB] != 0 && reachedAngle(nMotorEncoder[motorB], endAngleB, upB))
+			motor[motorB] = 0;
+		if (motor[motorC] != 0 && reachedAngle(nMotorEncoder[motorC], endAngleC, upC))
+			motor[motorC] = 0;
+	}
+}
+
+void moveToLocation(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
 {
 	motorsOff();
 
@@ -183,11 +258,16 @@ void motorsOff()
 
 void pickUp()
 {
+<<<<<<< HEAD
 	//armOneDown(20, 20);
 	move(20, 0, -5, -5);
 	move(20, 0, -15, 20);
 	wait10Msec(100);
 	move(20, 0, 30, 20);
+=======
+	move(20, 20, -10, 0);
+	move(20, -30, -10, 0);
+>>>>>>> origin/master
 }
 
 // rounds to the fastest speed
