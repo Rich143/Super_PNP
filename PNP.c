@@ -1,45 +1,41 @@
+//Insert title comments
 int getAbsMax(int a, int b);
 void getSpeeds(const int SPEED, int angleA, int angleB, int angleC, int & speedA, int & speedB, int & speedC);
 bool reachedAngle(int encoder, int endAngle, int dir);
-void move(int speed, int rotateLeft, int innerArmUp, int outerArmUp);
+void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp);
 void calibrateMotor(tMotor motor_name);
 void calibrate();
 void pickUp();
 void motorsOff();
-void rotateLeft(int speed, int angle);
-void rotateRight(int speed, int angle);
-void armOneUp(int speed, int angle);
-void armOneDown(int speed, int angle);
-void armTwoUp(int speed, int angle);
-void armTwoDown(int speed, int angle);
+void checkIfDone();
+int roundSpeed(float val);
 
+
+typedef struct{
+	int angleA;
+	int angleB;
+	int angleC;
+	char color; //one letter per color
+} Position;
+
+typedef struct{
+	Position positions[6];
+	int size;
+} Platform;
 
 task main()
 {
-
-	//wait1Msec(500);
-	//if (nNxtButtonPressed == -1)
+	SensorType[S1] = sensorTouch;
 	calibrate();
-	//rotateLeft(30,90);
 
-	//rotateRight(30,90);
-	//armOneUp(20,90);
+	move(20,90,-20,-20);
+	wait1Msec(1000);
 
-	//armOneDown(20,90);
-	//armTwoUp(40,90);
-	//armTwoDown(40,90);
-	//move(10,0,0,-45);
-	//move(10,0,0,45);
-	//move(10,0,-45,0);
-	//move(10,0,45,0);
-	//move(10,-45,90,0);
-	//move(10,45,-90,0);
-	move(25,+45,-45,-45);
-	move(25,-45,+45,+45);
+	move(20,-90,20,20);
+	wait1Msec(1000);
+}
 
-	}
-
-//returns the absolute maximum of two integers
+// Returns the absolute maximum of two integers
 int getAbsMax(int a, int b)
 {
 	if (abs(a) > abs(b))
@@ -47,49 +43,47 @@ int getAbsMax(int a, int b)
 	return abs(b);
 }
 
-//calculates speeds according to the change in angle of each component
-//@angleA/B/C indicates the angle each component must rotate
-//@speedA/B/C are the return values of the appropriate motor speeds for each component
-//@SPEED is the speed of the fastest moving
+// Calculates speeds according to the change in angle of each component
+// @angleA/B/C indicates the angle each component must rotate
+// @speedA/B/C are the return values of the appropriate motor speeds for each component
+// @SPEED is the speed of the fastest moving
 void getSpeeds(const int SPEED, int angleA, int angleB, int angleC, int & speedA, int & speedB, int & speedC)
 {
 	int highestChange;
 	highestChange = getAbsMax(angleA, angleB);
 	highestChange = getAbsMax(highestChange, angleC);
 
-	speedA = (int)((float)angleA / highestChange * SPEED);
-	speedB = (int)((float)angleB / highestChange * SPEED);
-	speedC = (int)((float)angleC / highestChange * SPEED);
+	speedA = roundSpeed(angleA / highestChange) * SPEED; // / highestChange * SPEED);
+	speedB = roundSpeed(angleB / highestChange) * SPEED; // / highestChange * SPEED);
+	speedC = roundSpeed(angleC / highestChange) * SPEED; // / highestChange * SPEED);
 }
 
-//@Encoder: the current encoder value for the motor
-//@endAngle: the desired end angle
-//@dir: bool true is left/up, false is right/down
+// @Encoder: the current encoder value for the motor
+// @endAngle: the desired end angle
+// @dir: bool true is left/up, false is right/down
 bool reachedAngle(int encoder, int endAngle, int dir)
 {
-	if (dir)
+	if (dir && encoder > endAngle)
 	{
-		if (encoder > endAngle)
-			return true;
+		return true;
 	}
-	else
+	else if (!dir && encoder <= endAngle)
 	{
-		if (encoder < endAngle)
-			return true;
+		return true;
 	}
 	return false;
 }
 
-//@armOneUp: positive angles are up
-//@armTwoUp: positive angles are up
-//@angle: Angle to rotate motor A, cCW being positive
-void move(int speed, int rotateLeft, int innerArmUp, int outerArmUp)
+// @outerArmUp: positive angles are up
+// @innerArmUp: positive angles are up
+// @angle: Angle to rotate motor A, cCW being positive
+void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
 {
 	motorsOff();
 
 	int angleChangeA, angleChangeB, angleChangeC;
 	//incorporates gear ratios
-	angleChangeA = 7 * rotateLeft;
+	angleChangeA = 7 * rotateCCW;
 	angleChangeB = 6 * innerArmUp;
 	angleChangeC = 3 * outerArmUp;
 
@@ -109,7 +103,7 @@ void move(int speed, int rotateLeft, int innerArmUp, int outerArmUp)
 
 	bool leftA = false, upB = false, upC = false;
 
-	if (rotateLeft > 0)
+	if (rotateCCW > 0)
 		leftA = true;
 	if(innerArmUp > 0)
 		upB = true;
@@ -118,8 +112,9 @@ void move(int speed, int rotateLeft, int innerArmUp, int outerArmUp)
 
 
 	//while at least one motor is still running
-	while (motor[motorA] != 0 || motor[motorB] != 0 || motor[motorC] != 0 )
+	while (motor[motorA] != 0 || motor[motorB] != 0 || motor[motorC] != 0)
 	{
+		checkIfDone();
 		if (motor[motorA] != 0 && reachedAngle(nMotorEncoder[motorA], endAngleA, leftA))
 			motor[motorA] = 0;
 		if (motor[motorB] != 0 && reachedAngle(nMotorEncoder[motorB], endAngleB, upB))
@@ -134,6 +129,7 @@ void calibrateMotor(tMotor motor_name)
 	bool doneCalibration = false;
 	while(!doneCalibration)
 	{
+		checkIfDone();
 		if (nNxtButtonPressed == 	2)
 			motor[motor_name] = 20;
 		if (nNxtButtonPressed == 1)
@@ -160,11 +156,18 @@ void calibrate()
 		nMotorEncoder[motorC] = 0;
 }
 
-void pickUp()
+
+
+// If emergency stop pressed or pattern finished, display a message on the screen
+// and
+void checkIfDone()
 {
-	armOneDown(20, 20);
-	move(20, 20, -10, 0);
-	move(20, 30, -10, 0);
+	if (SensorValue[S1])
+	{
+		motorsOff();
+		nxtDisplayString(0, "Program Complete!");
+		while (1);
+	}
 }
 
 void motorsOff()
@@ -174,47 +177,18 @@ void motorsOff()
 	motor[motorC] = 0;
 }
 
-
-void rotateLeft(int speed, int angle)
+void pickUp()
 {
-	motor[motorA] = speed;
-	int endAngle = nMotorEncoder[motorA] + 7*angle;
-	while (nMotorEncoder[motorA] < endAngle);
-	motor[motorA] = 0;
+	//armOneDown(20, 20);
+	move(20, 20, -10, 0);
+	move(20, -30, -10, 0);
 }
 
-void rotateRight(int speed, int angle)
+// rounds to the fastest speed
+int roundSpeed(float val)
 {
-	motor[motorA] = -speed;
-	int endAngle = nMotorEncoder[motorA] - 7*angle;
-	while (nMotorEncoder[motorA] > endAngle);
-	motor[motorA] = 0;
-}
-void armOneUp(int speed, int angle)
-{
-	motor[motorB] = speed;
-	int endAngle = nMotorEncoder[motorB] + 6*angle;
-	while (nMotorEncoder[motorB] < endAngle);
-	motor[motorB] = 0;
-}
-void armOneDown(int speed, int angle)
-{
-	motor[motorB] = -speed;
-	int endAngle = nMotorEncoder[motorB] - 6*angle;
-	while (nMotorEncoder[motorB] > endAngle);
-	motor[motorB] = 0;
-}
-void armTwoUp(int speed, int angle)
-{
-	motor[motorC] = speed;
-	int endAngle = nMotorEncoder[motorC] + 3 * angle;
-	while (nMotorEncoder[motorC] < endAngle);
-	motor[motorC] = 0;
-}
-void armTwoDown(int speed, int angle)
-{
-	motor[motorC] = -speed;
-	int endAngle = nMotorEncoder[motorC] - 3 * angle;
-	while (nMotorEncoder[motorC] > endAngle);
-	motor[motorC] = 0;
+	if (val>0)
+		return (int)ceil(val);
+	else
+		return (int)floor(val);
 }
