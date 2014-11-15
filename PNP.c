@@ -1,16 +1,4 @@
 //Insert title comments
-int getAbsMax(int a, int b);
-void getSpeeds(const int SPEED, int angleA, int angleB, int angleC, int & speedA, int & speedB, int & speedC);
-bool reachedAngle(int encoder, int endAngle, int dir);
-void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp);
-void calibrateMotor(tMotor motor_name);
-void calibrate();
-void pickUp();
-void motorsOff();
-void checkIfDone();
-void displayAngles(int angleA, int angleB, int angleC);
-
-int roundSpeed(float val);
 
 typedef struct
 {
@@ -26,15 +14,39 @@ typedef struct
 	int size;
 } Column;
 
+int getAbsMax(int a, int b);
+void getSpeeds(const int SPEED, int angleA, int angleB, int angleC, int & speedA, int & speedB, int & speedC);
+bool reachedAngle(int encoder, int endAngle, int dir);
+void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp);
+void calibrateMotor(tMotor motor_name);
+void calibrate();
+void pickUp();
+void motorsOff();
+void checkIfDone();
+void displayAngles(Position pos);
+void moveToLocation(int speed, Position startPosition, Position endPosition);
+int roundSpeed(float val);
+
 task main()
 {
-	int currentA, currentB, currentC;
 	SensorType[S1] = sensorTouch;
 	calibrate();
-	currentA = 0;
-	currentB = 90;
-	currentC = 0;
-	displayAngles(currentA, currentB, currentC);
+	Position startPosition;
+	startPosition.angleA = 0;
+	startPosition.angleB = 90;
+	startPosition.angleC = 0;
+	startPosition.color = 0;
+	displayAngles(startPosition);
+	wait10Msec(200);
+
+	Position p1;
+	p1.angleA = 90;
+	p1.angleB = -45;
+	p1.angleC = -45;
+	p1.color = 1;
+
+	moveToLocation(20, startPosition, p1);
+	wait10msec(1000);
 
 	//pickUp();
 }
@@ -88,7 +100,7 @@ void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
 	int angleChangeA, angleChangeB, angleChangeC;
 	//incorporates gear ratios
 	angleChangeA = 7 * rotateCCW;
-	angleChangeB = 6 * innerArmUp;
+	angleChangeB = 5 * innerArmUp;
 	angleChangeC = 3 * outerArmUp;
 
 	int endAngleA, endAngleB, endAngleC;
@@ -129,11 +141,11 @@ void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
 	}
 }
 
-void moveToLocation(int speed, int rotateCCW, int innerArmUp, int outerArmUp, int currentA, int currentB, int currentC)
+void moveToLocation(int speed, Position startPosition, Position endPosition)
 {
 	motorsOff();
-
-
+	move(speed, endPosition.angleA - startPosition.angleC, endPosition.angleC - startPosition.angleC, endPosition.angleC - startPosition.angleC);
+	displayAngles(endPosition);
 }
 
 void calibrateMotor(tMotor motor_name)
@@ -143,9 +155,9 @@ void calibrateMotor(tMotor motor_name)
 	{
 		checkIfDone();
 		if (nNxtButtonPressed == 	2)
-			motor[motor_name] = 20;
+			motor[motor_name] = 10;
 		if (nNxtButtonPressed == 1)
-			motor[motor_name] = -20;
+			motor[motor_name] = -10;
 		if (nNxtButtonPressed == -1)
 			motor[motor_name] = 0;
 		if (nNxtButtonPressed == 3)
@@ -182,11 +194,11 @@ void checkIfDone()
 	}
 }
 
-void displayAngles(int angleA, int angleB, int angleC)
+void displayAngles(Position pos)
 {
-	nxtDisplayString(3, "%d", angleA);
-	nxtDisplayString(3, "%d", angleB);
-	nxtDisplayString(3, "%d", angleC);
+	nxtDisplayString(2, "Angle A: %d", pos.angleA);
+	nxtDisplayString(3, "Angle B: %d", pos.angleB);
+	nxtDisplayString(4, "Angle C: %d", pos.angleC);
 }
 
 void motorsOff()
