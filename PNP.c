@@ -1,5 +1,6 @@
 //Insert title comments
 int getAbsMax(int a, int b);
+int roundSpeed(float val);
 void getSpeeds(const int SPEED, int angleA, int angleB, int angleC, int & speedA, int & speedB, int & speedC);
 bool reachedAngle(int encoder, int endAngle, int dir);
 void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp);
@@ -8,8 +9,6 @@ void calibrate();
 void pickUp();
 void motorsOff();
 void checkIfDone();
-int roundSpeed(float val);
-
 
 typedef struct{
 	int angleA;
@@ -27,12 +26,17 @@ task main()
 {
 	SensorType[S1] = sensorTouch;
 	calibrate();
+	pickUp();
 
+
+	move(30, -45, 10, 0);
+  /*
 	move(20,90,-20,-20);
 	wait1Msec(1000);
 
 	move(20,-90,20,20);
 	wait1Msec(1000);
+	*/
 }
 
 // Returns the absolute maximum of two integers
@@ -53,9 +57,9 @@ void getSpeeds(const int SPEED, int angleA, int angleB, int angleC, int & speedA
 	highestChange = getAbsMax(angleA, angleB);
 	highestChange = getAbsMax(highestChange, angleC);
 
-	speedA = roundSpeed(angleA / highestChange) * SPEED; // / highestChange * SPEED);
-	speedB = roundSpeed(angleB / highestChange) * SPEED; // / highestChange * SPEED);
-	speedC = roundSpeed(angleC / highestChange) * SPEED; // / highestChange * SPEED);
+	speedA = roundSpeed((float)angleA / highestChange * SPEED);
+	speedB = roundSpeed((float)angleB / highestChange * SPEED);
+	speedC = roundSpeed((float)angleC / highestChange * SPEED);
 }
 
 // @Encoder: the current encoder value for the motor
@@ -180,8 +184,10 @@ void motorsOff()
 void pickUp()
 {
 	//armOneDown(20, 20);
-	move(20, 20, -10, 0);
-	move(20, -30, -10, 0);
+	move(20, 0, -5, -5);
+	move(20, 0, -15, 20);
+	wait10Msec(100);
+	move(20, 0, 30, 20);
 }
 
 // rounds to the fastest speed
@@ -189,6 +195,7 @@ int roundSpeed(float val)
 {
 	if (val>0)
 		return (int)ceil(val);
+
 	else
 		return (int)floor(val);
 }
