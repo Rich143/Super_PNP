@@ -232,17 +232,11 @@ void motorsOff()
 
 void pickUp()
 {
-	move(20,90,80,-80);
-	//armOneDown(20, 20);
-	/*move(20, 0, -5, -5);
+	move(20, 0, -5, -5);
 	move(20, 0, -15, 20);
 	wait10Msec(100);
-	move(20, 0, 30, 20);
-
-	move(20, 20, -10, 0);
-	move(20, -30, -10, 0);
-	*/
-
+	move(20, 0, 20, 10);
+	move(20, 0, 45, -5);
 }
 
 // rounds to the fastest speed
@@ -320,7 +314,7 @@ Position p1;
 */
 
 
-/*
+
 int inLength = 21;
 int outLength = 24;
 float toRADIANS = PI / 180;
@@ -348,10 +342,9 @@ float increaseLength(int length, float angle){
 
 void assignCurrentPosition(Position & pos)
 {
-	int a = nxtMotorEncoder[motorA];
-	pos.angleA = SensorValue(nxtMotorEncoder[motorA]) / 7;
-	pos.angleB = nxtMotorEncoder[motorB] / 5;
-	pos.angleC = nxtMotorEncoder[motorC] / 3;	
+	pos.angleA = nMotorEncoder[motorA] / 7;
+	pos.angleB = nMotorEncoder[motorB] / 5;
+	pos.angleC = nMotorEncoder[motorC] / 3;	
 }
 
 void assignPosition(int angleA, int angleB, int angleC, Position & pos)
@@ -360,4 +353,4 @@ void assignPosition(int angleA, int angleB, int angleC, Position & pos)
 	pos.angleB = angleB;
 	pos.angleC = angleC;
 }
-*/
+
