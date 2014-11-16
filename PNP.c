@@ -34,14 +34,8 @@ task main()
 	SensorType[S1] = sensorTouch;
 	Grid pattern;
 	setPositions(pattern);
-<<<<<<< HEAD
 
-=======
-	
-	//while (1)
-		//calibrate();
  
->>>>>>> 8616640271519235e706032bf6533ced93b2243b
 	calibrate();
 	Position startPosition;
 	startPosition.angleA = 0;
@@ -50,15 +44,6 @@ task main()
 	startPosition.color = 0;
 	displayAngles(startPosition);
 	wait10Msec(200);
-<<<<<<< HEAD
-
-	moveToLocation(20, startPosition, pattern.positions[0][0]);
-	wait10Msec(100);
-	pickUp();
-
-	moveToLocation(20, pattern.positions[0][0], startPosition);
-
-=======
 	
 	Position currentPosition;
 	
@@ -66,15 +51,12 @@ task main()
 	currentPosition.angleB = 90;
 	currentPosition.angleC = 0;
 	currentPosition.color = 0;
+	
+	moveToLocation(20, startPosition, pattern.positions[0][0]);
+	wait10Msec(100);
+	pickUp();
 
-	moveToLocation(20, currentPosition, pattern.positions[0][0]);
-	wait10Msec(500);
-	
-	moveToLocation(20, currentPosition, startPosition);
-	wait10Msec(500);
-	
-	
->>>>>>> 8616640271519235e706032bf6533ced93b2243b
+	moveToLocation(20, pattern.positions[0][0], startPosition);
 }
 
 // Returns the absolute maximum of two integers
@@ -239,17 +221,11 @@ void motorsOff()
 
 void pickUp()
 {
-	move(20,90,80,-80);
-	//armOneDown(20, 20);
-	/*move(20, 0, -5, -5);
-	move(20, 0, -15, 20);
+	move(20, 0, -20, 20);
 	wait10Msec(100);
-	move(20, 0, 30, 20);
+	move(20, 0, 20, -5);
 
-	move(20, 20, -10, 0);
-	move(20, -30, -10, 0);
-	*/
-
+	move(20, 0, 45, -10);
 }
 
 // rounds to the fastest speed
