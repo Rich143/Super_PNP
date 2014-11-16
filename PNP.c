@@ -1,4 +1,4 @@
-//Insert title comments
+//Insert title comments//Insert title comments
 
 typedef struct
 {
@@ -10,10 +10,11 @@ typedef struct
 
 typedef struct
 {
-	Position positions[5];
-	int size;
-} Column;
+	Position positions[4][4];
+} Grid;
 
+void assignPosition(int angleA, int angleB, int angleC, Position & pos);
+void assignCurrentPosition(Position & pos);
 int getAbsMax(int a, int b);
 void getSpeeds(const int SPEED, int angleA, int angleB, int angleC, int & speedA, int & speedB, int & speedC);
 bool reachedAngle(int encoder, int endAngle, int dir);
@@ -26,10 +27,19 @@ void checkIfDone();
 void displayAngles(Position pos);
 void moveToLocation(int speed, Position startPosition, Position endPosition);
 int roundSpeed(float val);
+void setPositions(Grid & grid);
 
 task main()
 {
 	SensorType[S1] = sensorTouch;
+	Grid pattern;
+	setPositions(pattern);
+	
+	//while (1)
+		//calibrate();
+ 
+	
+	
 	calibrate();
 	Position startPosition;
 	startPosition.angleA = 0;
@@ -38,11 +48,27 @@ task main()
 	startPosition.color = 0;
 	displayAngles(startPosition);
 	wait10Msec(200);
-
-
-
-
-	//pickUp();
+	
+	moveToLocation(20, startPosition, pattern.positions[2][0]);
+	wait10Msec(500);
+	
+	/*for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			int random1 = rand() * 
+			moveToLocation(getCurrentPosition(), pattern.positions[ 
+		}
+	*/
+	
+	moveToLocation(20, pattern.positions[2][0], pattern.positions[2][1]);
+	wait10Msec(500);
+	moveToLocation(20, pattern.positions[2][1], pattern.positions[2][2]);
+	wait10Msec(500);
+	moveToLocation(20, pattern.positions[2][2], pattern.positions[2][3]);
+	wait10Msec(500);
+	
+	moveToLocation(20, pattern.positions[2][3], startPosition);
 }
 
 // Returns the absolute maximum of two integers
@@ -160,6 +186,7 @@ void calibrateMotor(tMotor motor_name)
 			doneCalibration = true;
 		}
 	}
+	
 	while(nNxtButtonPressed != -1);
 }
 
@@ -190,6 +217,7 @@ void checkIfDone()
 
 void displayAngles(Position pos)
 {
+	eraseDisplay();
 	nxtDisplayString(2, "Angle A: %d", pos.angleA);
 	nxtDisplayString(3, "Angle B: %d", pos.angleB);
 	nxtDisplayString(4, "Angle C: %d", pos.angleC);
@@ -204,15 +232,16 @@ void motorsOff()
 
 void pickUp()
 {
-
+	move(20,90,80,-80);
 	//armOneDown(20, 20);
-	move(20, 0, -5, -5);
+	/*move(20, 0, -5, -5);
 	move(20, 0, -15, 20);
 	wait10Msec(100);
 	move(20, 0, 30, 20);
 
 	move(20, 20, -10, 0);
 	move(20, -30, -10, 0);
+	*/
 
 }
 
@@ -226,27 +255,59 @@ int roundSpeed(float val)
 		return (int)floor(val);
 }
 
+// Predetermined positions of each gridspace
+void setPositions(Grid & grid)
+{
+	// FIRST ROW
+	for (int i = 0; i < 4; i++)
+	{
+		grid.positions[i][0].angleA = 40 + i*25;
+		grid.positions[i][0].angleB = 75;
+		grid.positions[i][0].angleC = -135;
+	}
+	// SECOND ROW
+	for (int i = 0; i < 4; i++)
+	{
+		grid.positions[i][1].angleA = 40 + i*25;
+		grid.positions[i][1].angleB = 60;
+		grid.positions[i][1].angleC = -120;
+	}
+	// THIRD ROW
+	for (int i = 0; i < 4; i++)
+	{
+		grid.positions[i][2].angleA = 40 + i*25;
+		grid.positions[i][2].angleB = 50;
+		grid.positions[i][2].angleC = -95;
+	}
+	// FOURTH ROW
+	for (int i = 0; i < 4; i++)
+	{
+		grid.positions[i][3].angleA = 40 + i*25;
+		grid.positions[i][3].angleB = 40;
+		grid.positions[i][3].angleC = -70;
+	}
+		
+}
+
 
 // Test code 1: Multiple position moves
 /*
+
 Position p1;
 	p1.angleA = 90;
 	p1.angleB = 45;
 	p1.angleC = -45;
 	p1.color = 1;
-
 	Position p2;
 	p2.angleA = 0;
 	p2.angleB = 20;
 	p2.angleC = 0;
 	p2.color = 1;
-
 	Position p3;
 	p3.angleA = -45;
 	p3.angleB = 90;
 	p3.angleC = -70;
 	p3.color = 1;
-
 	moveToLocation(20, startPosition, p1);
 	wait10msec(200);
 	moveToLocation(20, p1, startPosition);
@@ -256,5 +317,47 @@ Position p1;
 	moveToLocation(20, p2, p3);
 	wait10msec(200);
 	moveToLocation(20, p3, startPosition);
+*/
 
+
+/*
+int inLength = 21;
+int outLength = 24;
+float toRADIANS = PI / 180;
+float increaseLength(int length, float angle){
+	float currLength = inLength * inLength + outLength * outLength 
+						 				 - 2 * inLength * outLength * cos ( (180 - abs(angle) * toRADIANS ));
+	
+	float oldAngleBetweenArms = acos((inLength*inLength + outLength*outLength - currLength*currLength) /
+									 				 (2*inLength*outLength));
+	float oldInnerAngle = asin(outLength * sin(oldAngleBetweenArms * toRADIANS) / currLength);
+	currLength += length;
+	
+	float angleBetweenArms = acos((inLength*inLength + outLength*outLength - currLength*currLength) /
+									 				 (2*inLength*outLength));						 				 
+	
+	float innerAngle = asin(outLength * sin(angleBetweenArms * toRADIANS) / currLength);
+	
+	float outerAngle = -180 + angleBetweenArms;
+	
+	Position startPos, endPos;
+	assignCurrentPosition(startPos);
+	assignPosition(startPos.angleA, startPos.angleB - oldInnerAngle + innerAngle, outAngle, endPos);
+	moveToLocation(startPos, endPos);
+}
+
+void assignCurrentPosition(Position & pos)
+{
+	int a = nxtMotorEncoder[motorA];
+	pos.angleA = SensorValue(nxtMotorEncoder[motorA]) / 7;
+	pos.angleB = nxtMotorEncoder[motorB] / 5;
+	pos.angleC = nxtMotorEncoder[motorC] / 3;	
+}
+
+void assignPosition(int angleA, int angleB, int angleC, Position & pos)
+{
+	pos.angleA = angleA;
+	pos.angleB = angleB;
+	pos.angleC = angleC;
+}
 */
