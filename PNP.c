@@ -72,6 +72,47 @@ task main()
 	
 }
 
+/*
+Calibration Functions
+*/
+void calibrateMotor(tMotor motor_name)
+{
+	bool doneCalibration = false;
+	while(!doneCalibration)
+	{
+		checkIfDone();
+		if (nNxtButtonPressed == 	2)
+			motor[motor_name] = 10;
+		if (nNxtButtonPressed == 1)
+			motor[motor_name] = -10;
+		if (nNxtButtonPressed == -1)
+			motor[motor_name] = 0;
+		if (nNxtButtonPressed == 3)
+		{
+			motor[motor_name] = 0;
+			doneCalibration = true;
+		}
+	}
+	
+	while(nNxtButtonPressed != -1);
+}
+
+// set the motors to the desired start position and resets encoders
+void calibrate()
+{
+		calibrateMotor(motorA);
+		calibrateMotor(motorB);
+		calibrateMotor(motorC);
+		nMotorEncoder[motorA] = 0;
+		nMotorEncoder[motorB] = 0;
+		nMotorEncoder[motorC] = 0;
+}
+
+
+/*
+Movement Functions
+*/
+
 // Returns the absolute maximum of two integers
 int getAbsMax(int a, int b)
 {
@@ -170,41 +211,28 @@ void moveToLocation(int speed, Position currentPosition, Position endPosition)
 	assignCurrentPosition(currentPosition);
 }
 
-void calibrateMotor(tMotor motor_name)
+/*
+Pick up and Put down
+*/
+void pickUp()
 {
-	bool doneCalibration = false;
-	while(!doneCalibration)
-	{
-		checkIfDone();
-		if (nNxtButtonPressed == 	2)
-			motor[motor_name] = 10;
-		if (nNxtButtonPressed == 1)
-			motor[motor_name] = -10;
-		if (nNxtButtonPressed == -1)
-			motor[motor_name] = 0;
-		if (nNxtButtonPressed == 3)
-		{
-			motor[motor_name] = 0;
-			doneCalibration = true;
-		}
-	}
-	
-	while(nNxtButtonPressed != -1);
-}
+	move(20,90,80,-80);
+	//armOneDown(20, 20);
+	/*move(20, 0, -5, -5);
+	move(20, 0, -15, 20);
+	wait10Msec(100);
+	move(20, 0, 30, 20);
 
-// set the motors to the desired start position and resets encoders
-void calibrate()
-{
-		calibrateMotor(motorA);
-		calibrateMotor(motorB);
-		calibrateMotor(motorC);
-		nMotorEncoder[motorA] = 0;
-		nMotorEncoder[motorB] = 0;
-		nMotorEncoder[motorC] = 0;
+	move(20, 20, -10, 0);
+	move(20, -30, -10, 0);
+	*/
+
 }
 
 
-
+/*
+Other Functions
+*/
 // If emergency stop pressed or pattern finished, display a message on the screen
 // and stop the program
 void checkIfDone()
@@ -232,20 +260,7 @@ void motorsOff()
 	motor[motorC] = 0;
 }
 
-void pickUp()
-{
-	move(20,90,80,-80);
-	//armOneDown(20, 20);
-	/*move(20, 0, -5, -5);
-	move(20, 0, -15, 20);
-	wait10Msec(100);
-	move(20, 0, 30, 20);
 
-	move(20, 20, -10, 0);
-	move(20, -30, -10, 0);
-	*/
-
-}
 
 // rounds to the fastest speed
 int roundSpeed(float val)
@@ -256,6 +271,11 @@ int roundSpeed(float val)
 	else
 		return (int)floor(val);
 }
+
+
+/*
+Position Setting Functions
+*/
 
 // Predetermined positions of each gridspace
 void setPositions(Grid & pattern, Grid & colorPattern)
@@ -306,6 +326,17 @@ void setPositions(Grid & pattern, Grid & colorPattern)
 	}
 		
 }
+
+
+void assignCurrentPosition(Position & pos)
+{	
+	pos.angleA = nMotorEncoder[motorA] / 7; 
+	pos.angleB = 90 + nMotorEncoder[motorB] / 5; // 90 in front since arm starts at 90 degrees 
+	pos.angleC = nMotorEncoder[motorC] / 3;
+}
+
+
+
 
 
 // Test code 1: Multiple position moves
@@ -365,17 +396,3 @@ float increaseLength(int length, float angle){
 	moveToLocation(startPos, endPos);
 }
 */
-
-void assignCurrentPosition(Position & pos)
-{	
-	pos.angleA = nMotorEncoder[motorA] / 7; 
-	pos.angleB = 90 + nMotorEncoder[motorB] / 5; // 90 in front since arm starts at 90 degrees 
-	pos.angleC = nMotorEncoder[motorC] / 3;
-}
-
-void assignPosition(int angleA, int angleB, int angleC, Position & pos)
-{
-	pos.angleA = angleA;
-	pos.angleB = angleB;
-	pos.angleC = angleC;
-}
