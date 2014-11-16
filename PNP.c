@@ -25,7 +25,7 @@ void pickUp();
 void motorsOff();
 void checkIfDone();
 void displayAngles(Position pos);
-void moveToLocation(int speed, Position startPosition, Position endPosition);
+void moveToLocation(int speed, Position currentPosition, Position endPosition);
 int roundSpeed(float val);
 void setPositions(Grid & grid);
 
@@ -34,7 +34,14 @@ task main()
 	SensorType[S1] = sensorTouch;
 	Grid pattern;
 	setPositions(pattern);
+<<<<<<< HEAD
 
+=======
+	
+	//while (1)
+		//calibrate();
+ 
+>>>>>>> 8616640271519235e706032bf6533ced93b2243b
 	calibrate();
 	Position startPosition;
 	startPosition.angleA = 0;
@@ -43,6 +50,7 @@ task main()
 	startPosition.color = 0;
 	displayAngles(startPosition);
 	wait10Msec(200);
+<<<<<<< HEAD
 
 	moveToLocation(20, startPosition, pattern.positions[0][0]);
 	wait10Msec(100);
@@ -50,6 +58,23 @@ task main()
 
 	moveToLocation(20, pattern.positions[0][0], startPosition);
 
+=======
+	
+	Position currentPosition;
+	
+	currentPosition.angleA = 0;
+	currentPosition.angleB = 90;
+	currentPosition.angleC = 0;
+	currentPosition.color = 0;
+
+	moveToLocation(20, currentPosition, pattern.positions[0][0]);
+	wait10Msec(500);
+	
+	moveToLocation(20, currentPosition, startPosition);
+	wait10Msec(500);
+	
+	
+>>>>>>> 8616640271519235e706032bf6533ced93b2243b
 }
 
 // Returns the absolute maximum of two integers
@@ -142,11 +167,12 @@ void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp)
 	}
 }
 
-void moveToLocation(int speed, Position startPosition, Position endPosition)
+void moveToLocation(int speed, Position currentPosition, Position endPosition)
 {
 	motorsOff();
-	move(speed, endPosition.angleA - startPosition.angleA, endPosition.angleB - startPosition.angleB, endPosition.angleC - startPosition.angleC);
+	move(speed, endPosition.angleA - currentPosition.angleA, endPosition.angleB - currentPosition.angleB, endPosition.angleC - currentPosition.angleC);
 	displayAngles(endPosition);
+	assignCurrentPosition(currentPosition);
 }
 
 void calibrateMotor(tMotor motor_name)
@@ -213,11 +239,17 @@ void motorsOff()
 
 void pickUp()
 {
-	move(20, 0, -5, -5);
+	move(20,90,80,-80);
+	//armOneDown(20, 20);
+	/*move(20, 0, -5, -5);
 	move(20, 0, -15, 20);
 	wait10Msec(100);
-	move(20, 0, 20, 10);
-	move(20, 0, 45, -5);
+	move(20, 0, 30, 20);
+
+	move(20, 20, -10, 0);
+	move(20, -30, -10, 0);
+	*/
+
 }
 
 // rounds to the fastest speed
@@ -300,7 +332,12 @@ int inLength = 21;
 int outLength = 24;
 float toRADIANS = PI / 180;
 float increaseLength(int length, float angle){
+<<<<<<< HEAD
 	float currLength = inLength * inLength + outLength * outLength
+=======
+	float currLength = inLength m       
+	* inLength + outLength * outLength 
+>>>>>>> 8616640271519235e706032bf6533ced93b2243b
 						 				 - 2 * inLength * outLength * cos ( (180 - abs(angle) * toRADIANS ));
 
 	float oldAngleBetweenArms = acos((inLength*inLength + outLength*outLength - currLength*currLength) /
@@ -320,11 +357,18 @@ float increaseLength(int length, float angle){
 	assignPosition(startPos.angleA, startPos.angleB - oldInnerAngle + innerAngle, outAngle, endPos);
 	moveToLocation(startPos, endPos);
 }
+*/
 
 void assignCurrentPosition(Position & pos)
+<<<<<<< HEAD
 {
 	pos.angleA = nMotorEncoder[motorA] / 7;
 	pos.angleB = nMotorEncoder[motorB] / 5;
+=======
+{	
+	pos.angleA = nMotorEncoder[motorA] / 7; 
+	pos.angleB = 90 + nMotorEncoder[motorB] / 5; // 90 in front since arm starts at 90 degrees 
+>>>>>>> 8616640271519235e706032bf6533ced93b2243b
 	pos.angleC = nMotorEncoder[motorC] / 3;
 }
 
@@ -334,5 +378,8 @@ void assignPosition(int angleA, int angleB, int angleC, Position & pos)
 	pos.angleB = angleB;
 	pos.angleC = angleC;
 }
+<<<<<<< HEAD
 
 */
+=======
+>>>>>>> 8616640271519235e706032bf6533ced93b2243b
