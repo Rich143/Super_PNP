@@ -232,14 +232,39 @@ void motorsOff()
 	motor[motorC] = 0;
 }
 
-void pickUp()
+void pickUp(Position & currentPosition, int row)
 {
-	move(20, 0, -5, -5);
-	move(20, 0, -15, 20);
-	wait10Msec(100);
-	move(20, 0, 20, -10)
-	move(20, 0, 20, 20);
+	if (row == 0)
+	{
+		move(20, 0, -5, -5);
+		move(20, 0, -25, 20);
+		wait10Msec(10);
+		move(20, 0, 20, -10);
+		move(20, 0, 20, 10);
+	}
+
+	else if (row == 1)
+	{
+		move(20,0, -20, 0);
+		wait10Msec(10);
+		move(20, 0, -15, 10);
+		wait10Msec(10);
+		move(20, 0, 20, 0);
+		move(20, 0, 20, 10);
+	}
+
+	else if (row == 2)
+	{
+		move(20, 0, -10, 0);
+		move(20, 0, -15, 15);
+		wait10Msec(10);
+		move(20, 0, 20, -5);
+		move(20, 0, 20, 10);
+	}
+
+	assignCurrentPosition(currentPosition);
 }
+
 
 // rounds to the fastest speed
 int roundSpeed(float val)
@@ -257,48 +282,48 @@ void setPositions(Grid & pattern, Grid & colorPattern)
 	// FIRST ROW
 	for (int i = 0; i < 4; i++)
 	{
-		pattern.positions[i][0].angleA = 40 + i*25;
+		pattern.positions[i][0].angleA = 41 + i*25;
 		pattern.positions[i][0].angleB = 75;
 		pattern.positions[i][0].angleC = -135;
-		
-		colorPattern.positions[i][0].angleA = -40 - i*25;
+
+		colorPattern.positions[i][0].angleA = -41 - i*25;
 		colorPattern.positions[i][0].angleB = 75;
 		colorPattern.positions[i][0].angleC = -135;
 	}
 	// SECOND ROW
 	for (int i = 0; i < 4; i++)
 	{
-		pattern.positions[i][1].angleA = 40 + i*25;
-		pattern.positions[i][1].angleB = 60;
-		pattern.positions[i][1].angleC = -120;
-		
-		colorPattern.positions[i][1].angleA = -40 - i*25;
-		colorPattern.positions[i][1].angleB = 60;
-		colorPattern.positions[i][1].angleC = -120;
+		pattern.positions[i][1].angleA = 41 + i*25;
+		pattern.positions[i][1].angleB = 65;
+		pattern.positions[i][1].angleC = -110;
+
+		colorPattern.positions[i][1].angleA = -41 - i*25;
+		colorPattern.positions[i][1].angleB = 65;
+		colorPattern.positions[i][1].angleC = -110;
 	}
 	// THIRD ROW
 	for (int i = 0; i < 4; i++)
 	{
-		pattern.positions[i][2].angleA = 40 + i*25;
-		pattern.positions[i][2].angleB = 50;
-		pattern.positions[i][2].angleC = -95;
-		
-		colorPattern.positions[i][2].angleA = -40 - i*25;
-		colorPattern.positions[i][2].angleB = 50;
-		colorPattern.positions[i][2].angleC = -95;
+		pattern.positions[i][2].angleA = 41 + i*25;
+		pattern.positions[i][2].angleB = 55;
+		pattern.positions[i][2].angleC = -85;
+
+		colorPattern.positions[i][2].angleA = -41 - i*25;
+		colorPattern.positions[i][2].angleB = 55;
+		colorPattern.positions[i][2].angleC = -85;
 	}
 	// FOURTH ROW
 	for (int i = 0; i < 4; i++)
 	{
-		pattern.positions[i][3].angleA = 40 + i*25;
-		pattern.positions[i][3].angleB = 40;
-		pattern.positions[i][3].angleC = -70;
-		
-		colorPattern.positions[i][3].angleA = -40 - i*25;
-		colorPattern.positions[i][3].angleB = 40;
-		colorPattern.positions[i][3].angleC = -70;
+		pattern.positions[i][3].angleA = 41 + i*25;
+		pattern.positions[i][3].angleB = 25;
+		pattern.positions[i][3].angleC = -40;
+
+		colorPattern.positions[i][3].angleA = -41 - i*25;
+		colorPattern.positions[i][3].angleB = 25;
+		colorPattern.positions[i][3].angleC = -40;
 	}
-		
+
 }
 
 
