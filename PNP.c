@@ -34,12 +34,7 @@ task main()
 	SensorType[S1] = sensorTouch;
 	Grid pattern;
 	setPositions(pattern);
-	
-	//while (1)
-		//calibrate();
- 
-	
-	
+
 	calibrate();
 	Position startPosition;
 	startPosition.angleA = 0;
@@ -48,27 +43,13 @@ task main()
 	startPosition.color = 0;
 	displayAngles(startPosition);
 	wait10Msec(200);
-	
-	moveToLocation(20, startPosition, pattern.positions[2][0]);
-	wait10Msec(500);
-	
-	/*for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			int random1 = rand() * 
-			moveToLocation(getCurrentPosition(), pattern.positions[ 
-		}
-	*/
-	
-	moveToLocation(20, pattern.positions[2][0], pattern.positions[2][1]);
-	wait10Msec(500);
-	moveToLocation(20, pattern.positions[2][1], pattern.positions[2][2]);
-	wait10Msec(500);
-	moveToLocation(20, pattern.positions[2][2], pattern.positions[2][3]);
-	wait10Msec(500);
-	
-	moveToLocation(20, pattern.positions[2][3], startPosition);
+
+	moveToLocation(20, startPosition, pattern.positions[0][0]);
+	wait10Msec(100);
+	pickUp();
+
+	moveToLocation(20, pattern.positions[0][0], startPosition);
+
 }
 
 // Returns the absolute maximum of two integers
@@ -186,7 +167,7 @@ void calibrateMotor(tMotor motor_name)
 			doneCalibration = true;
 		}
 	}
-	
+
 	while(nNxtButtonPressed != -1);
 }
 
@@ -280,7 +261,7 @@ void setPositions(Grid & grid)
 		grid.positions[i][3].angleB = 40;
 		grid.positions[i][3].angleC = -70;
 	}
-		
+
 }
 
 
@@ -314,26 +295,26 @@ Position p1;
 */
 
 
-
+/*
 int inLength = 21;
 int outLength = 24;
 float toRADIANS = PI / 180;
 float increaseLength(int length, float angle){
-	float currLength = inLength * inLength + outLength * outLength 
+	float currLength = inLength * inLength + outLength * outLength
 						 				 - 2 * inLength * outLength * cos ( (180 - abs(angle) * toRADIANS ));
-	
+
 	float oldAngleBetweenArms = acos((inLength*inLength + outLength*outLength - currLength*currLength) /
 									 				 (2*inLength*outLength));
 	float oldInnerAngle = asin(outLength * sin(oldAngleBetweenArms * toRADIANS) / currLength);
 	currLength += length;
-	
+
 	float angleBetweenArms = acos((inLength*inLength + outLength*outLength - currLength*currLength) /
-									 				 (2*inLength*outLength));						 				 
-	
+									 				 (2*inLength*outLength));
+
 	float innerAngle = asin(outLength * sin(angleBetweenArms * toRADIANS) / currLength);
-	
+
 	float outerAngle = -180 + angleBetweenArms;
-	
+
 	Position startPos, endPos;
 	assignCurrentPosition(startPos);
 	assignPosition(startPos.angleA, startPos.angleB - oldInnerAngle + innerAngle, outAngle, endPos);
@@ -344,7 +325,7 @@ void assignCurrentPosition(Position & pos)
 {
 	pos.angleA = nMotorEncoder[motorA] / 7;
 	pos.angleB = nMotorEncoder[motorB] / 5;
-	pos.angleC = nMotorEncoder[motorC] / 3;	
+	pos.angleC = nMotorEncoder[motorC] / 3;
 }
 
 void assignPosition(int angleA, int angleB, int angleC, Position & pos)
@@ -354,3 +335,4 @@ void assignPosition(int angleA, int angleB, int angleC, Position & pos)
 	pos.angleC = angleC;
 }
 
+*/
