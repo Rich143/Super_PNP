@@ -13,6 +13,8 @@ typedef struct
 	Position positions[4][4];
 } Grid;
 
+void putDown(Position & currentPosition, int row, int mSpeed);
+void placeBlock(Position & startPosition, Position & endPosition, int mSpeed, int row, Position & currentPosition);
 void assignPosition(int angleA, int angleB, int angleC, Position & pos);
 void assignCurrentPosition(Position & pos);
 int getAbsMax(int a, int b);
@@ -187,6 +189,25 @@ void moveToLocation(int speed, Position currentPosition, Position endPosition)
 	assignCurrentPosition(currentPosition);
 }
 
+void placeBlock(Position & startPosition, Position & endPosition, int mSpeed, int row, Position & currentPosition)
+{
+	Position upPosition;
+	upPosition.angleA = 0;
+	upPosition.angleB = 90;
+	upPosition.angleC = -90;
+	upPosition.color = 0;
+	
+	moveToLocation(mSpeed, currentPosition, startPosition);
+	wait10Msec(10);
+	pickUp(currentPosition, row, mSpeed);
+	wait10Msec(10);
+	moveToLocation(mSpeed, currentPosition, upPosition);
+	wait10Msec(10);
+	moveToLocation(mSpeed, currentPosition, endPosition);
+	wait10Msec(10);
+	putDown(currentPosition, row, mSpeed);
+}
+
 void calibrateMotor(tMotor motor_name)
 {
 	bool doneCalibration = false;
@@ -249,39 +270,67 @@ void motorsOff()
 	motor[motorC] = 0;
 }
 
-void pickUp(Position & currentPosition, int row)
+// @position: pass in the current position
+// @row: the row we're picking up from
+// @mSpeed: the speed to move at
+void pickUp(Position & currentPosition, int row, int mSpeed)
 {
 	if (row == 0)
 	{
-		move(20, 0, -5, -5);
-		move(20, 0, -25, 20);
+		move(mSpeed, 0, -5, -5);
+		move(mSpeed, 0, -25, 15);
 		wait10Msec(10);
-		move(20, 0, 20, -10);
-		move(20, 0, 20, 10);
+		move(mSpeed, 0, 20, 0);
+		move(mSpeed, 0, 20, 10);
 	}
 
 	else if (row == 1)
 	{
-		move(20,0, -20, 0);
+		move(mSpeed,0, -20, 0);
 		wait10Msec(10);
-		move(20, 0, -15, 10);
+		move(mSpeed, 0, -5, 15);
 		wait10Msec(10);
-		move(20, 0, 20, 0);
-		move(20, 0, 20, 10);
+		move(mSpeed, 0, 20, 0);
+		move(mSpeed, 0, 20, 10);
 	}
 
 	else if (row == 2)
 	{
-		move(20, 0, -10, 0);
-		move(20, 0, -15, 15);
+		move(mSpeed, 0, -10, 0);
+		move(mSpeed, 0, -15, 15);
 		wait10Msec(10);
-		move(20, 0, 20, -5);
-		move(20, 0, 20, 10);
+		move(mSpeed, 0, 20, -5);
+		move(mSpeed, 0, 20, 10);
 	}
-
+	
 	assignCurrentPosition(currentPosition);
 }
 
+void putDown(Position & currentPosition, int row, int mSpeed)
+{
+	if (row == 0)
+	{
+		move(mSpeed, 0, -25, -5);
+		move(mSpeed, 0, 5, -20);
+		move(mSpeed, 0, 40, 10);
+	}
+	
+	else if (row == 1)
+	{
+		move(mSpeed, 0, -20, -5);
+		move(mSpeed, 0, 5, -20);
+		move(mSpeed, 0, 40, -10);
+	}
+	
+	else if (row == 2)
+	{
+		move(mSpeed, 0, -15, -10);
+		move(mSpeed, 0, 5, -15);
+		move(mSpeed, 0, 40, -10);
+	}
+	
+	assignCurrentPosition(currentPosition);
+}
 
 // rounds to the fastest speed
 int roundSpeed(float val)
@@ -297,51 +346,42 @@ int roundSpeed(float val)
 void setPositions(Grid & pattern, Grid & colorPattern)
 {
 	// FIRST ROW
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		pattern.positions[i][0].angleA = 41 + i*25;
+		pattern.positions[i][0].angleA = 66 + i*25;
 		pattern.positions[i][0].angleB = 75;
-		pattern.positions[i][0].angleC = -135;
+		pattern.positions[i][0].angleC = -115;
 
-		colorPattern.positions[i][0].angleA = -41 - i*25;
+		colorPattern.positions[i][0].angleA = -66 - i*25;
 		colorPattern.positions[i][0].angleB = 75;
 		colorPattern.positions[i][0].angleC = -135;
 	}
 	// SECOND ROW
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		pattern.positions[i][1].angleA = 41 + i*25;
+		pattern.positions[i][1].angleA = 66 + i*25;
 		pattern.positions[i][1].angleB = 65;
-		pattern.positions[i][1].angleC = -110;
+		pattern.positions[i][1].angleC = -85;
 
-		colorPattern.positions[i][1].angleA = -41 - i*25;
+		colorPattern.positions[i][1].angleA = -66 - i*25;
 		colorPattern.positions[i][1].angleB = 65;
 		colorPattern.positions[i][1].angleC = -110;
 	}
 	// THIRD ROW
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		pattern.positions[i][2].angleA = 41 + i*25;
+		pattern.positions[i][2].angleA = 66 + i*25;
 		pattern.positions[i][2].angleB = 55;
-		pattern.positions[i][2].angleC = -85;
+		pattern.positions[i][2].angleC = -65;
 
-		colorPattern.positions[i][2].angleA = -41 - i*25;
+		colorPattern.positions[i][2].angleA = -66 - i*25;
 		colorPattern.positions[i][2].angleB = 55;
 		colorPattern.positions[i][2].angleC = -85;
 	}
-	// FOURTH ROW
-	for (int i = 0; i < 4; i++)
-	{
-		pattern.positions[i][3].angleA = 41 + i*25;
-		pattern.positions[i][3].angleB = 25;
-		pattern.positions[i][3].angleC = -40;
-
-		colorPattern.positions[i][3].angleA = -41 - i*25;
-		colorPattern.positions[i][3].angleB = 25;
-		colorPattern.positions[i][3].angleC = -40;
-	}
 
 }
+
+
 void scanColors(Grid & pattern, Grid & colorPattern)
 {
 	// For the color grid:	
@@ -375,63 +415,6 @@ void scanColors(Grid & pattern, Grid & colorPattern)
 }
 
 
-// Test code 1: Multiple position moves
-/*
-
-Position p1;
-	p1.angleA = 90;
-	p1.angleB = 45;
-	p1.angleC = -45;
-	p1.color = 1;
-	Position p2;
-	p2.angleA = 0;
-	p2.angleB = 20;
-	p2.angleC = 0;
-	p2.color = 1;
-	Position p3;
-	p3.angleA = -45;
-	p3.angleB = 90;
-	p3.angleC = -70;
-	p3.color = 1;
-	moveToLocation(20, startPosition, p1);
-	wait10msec(200);
-	moveToLocation(20, p1, startPosition);
-	wait10msec(200);
-	moveToLocation(20, startPosition, p2);
-	wait10msec(200);
-	moveToLocation(20, p2, p3);
-	wait10msec(200);
-	moveToLocation(20, p3, startPosition);
-*/
-
-
-/*
-int inLength = 21;
-int outLength = 24;
-float toRADIANS = PI / 180;
-float increaseLength(int length, float angle){
-	float currLength = inLength m       
-	* inLength + outLength * outLength 
-						 				 - 2 * inLength * outLength * cos ( (180 - abs(angle) * toRADIANS ));
-	
-	float oldAngleBetweenArms = acos((inLength*inLength + outLength*outLength - currLength*currLength) /
-									 				 (2*inLength*outLength));
-	float oldInnerAngle = asin(outLength * sin(oldAngleBetweenArms * toRADIANS) / currLength);
-	currLength += length;
-	
-	float angleBetweenArms = acos((inLength*inLength + outLength*outLength - currLength*currLength) /
-									 				 (2*inLength*outLength));						 				 
-	
-	float innerAngle = asin(outLength * sin(angleBetweenArms * toRADIANS) / currLength);
-	
-	float outerAngle = -180 + angleBetweenArms;
-	
-	Position startPos, endPos;
-	assignCurrentPosition(startPos);
-	assignPosition(startPos.angleA, startPos.angleB - oldInnerAngle + innerAngle, outAngle, endPos);
-	moveToLocation(startPos, endPos);
-}
-*/
 
 void assignCurrentPosition(Position & pos)
 {	
