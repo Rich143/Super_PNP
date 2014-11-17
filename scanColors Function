@@ -1,0 +1,21 @@
+void scanColors(Grid & pattern, Grid & colorPattern)
+{
+	// For the color grid:
+	for (int column = 0; column < 3; column++)
+	{
+		for (int row = 0; row < 3; row++)
+			colorPattern.positions[column][row].color = column + 2; // uses blue, green, yellow, red (2,3,4,5 respectively)
+	}
+
+	for (int column = 0; column < 3; column++)
+	{
+		for (int row = 0; row < 3; row++)
+		{
+			Position currPos;
+			assignCurrentPosition(currPos);
+
+			moveToLocation(20, currPos, pattern.positions[column][row]);
+			pattern.positions[column][row].color = getColor();
+		}
+	}
+}
