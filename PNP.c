@@ -28,24 +28,22 @@ void displayAngles(Position pos);
 void moveToLocation(int speed, Position currentPosition, Position endPosition);
 int roundSpeed(float val);
 void setPositions(Grid & pattern, Grid & colorPattern);
+void scanColors(Grid & pattern, Grid & colorPattern);
 
 task main()
-{
+{	
 	SensorType[S1] = sensorTouch;
+	SensorType[S2] = sensorCOLORFULL;
 	Grid pattern, colorPattern;
 	setPositions(pattern, colorPattern);
-	
-	//while (1)
-		//calibrate();
- 
+
 	calibrate();
-	Position startPosition;
+  Position startPosition;
 	startPosition.angleA = 0;
 	startPosition.angleB = 90;
 	startPosition.angleC = 0;
 	startPosition.color = 0;
 	displayAngles(startPosition);
-	wait10Msec(200);
 	
 	Position currentPosition;
 	
@@ -53,23 +51,42 @@ task main()
 	currentPosition.angleB = 90;
 	currentPosition.angleC = 0;
 	currentPosition.color = 0;
-
-	Position p1;
-	p1.angleA = -40;
-	p1.angleB = 75;
-	p1.angleC = -135;
-	p1.color = 0;
 	
-	moveToLocation(20, currentPosition, colorPattern.positions[0][0]);
+	moveToLocation(20, currentPosition, colorPattern.positions[2][0]);
 	wait10Msec(100);
-                                                                                      	
-	moveToLocation(20, currentPosition, pattern.positions[0][0]);
-	wait10Msec(500);
+	nxtDisplayString(0, "Col: %d", SensorValue[S2];
+	wait1Msec(1000);
 
+
+	//scanColors(pattern, colorPattern);
+	
+
+	
+	/*int colorNeeded, pickupColumn, pickupRow;
+	for (int column = 3; column >= 0; column--)
+	{
+		for (int row = 3; row >= 0; row--)
+		{
+			colorNeeded = pattern.positions[column][row].color;
+			// 1 - black, 2 - blue, 3 - green, 4 - yellow, 5 - red, 6 - white
+			pickupColumn = colorNeeded - 2;
+			pickupRow = 0;
+			
+			while (colorPattern.positions[pickupColumn][pickupRow].color == 0)
+			{
+				pickupRow++;
+			}
+			colorPattern.positions[pickupColumn][pickupRow].color = 0; // color = 0 means the block has been used 
+			
+			moveToLocation(20, currentPosition, colorPattern.positions[pickupColumn][pickupRow]);
+			wait10Msec(100);
+			
+			moveToLocation(20, currentPosition, pattern.positions[column][row]);
+		}
+	}
+	
 	moveToLocation(20, currentPosition, startPosition);
-	wait10Msec(500);
-	
-	
+	*/
 }
 
 // Returns the absolute maximum of two integers
@@ -324,6 +341,37 @@ void setPositions(Grid & pattern, Grid & colorPattern)
 		colorPattern.positions[i][3].angleC = -40;
 	}
 
+}
+void scanColors(Grid & pattern, Grid & colorPattern)
+{
+	// For the color grid:	
+	for (int column = 0; column < 4; column++)
+	{
+		for (int row = 0; row < 4; row++)
+		{
+			colorPattern.positions[column][row].color = column+2; // uses blue, green, yellow, red (2,3,4,5 respectively)
+		}
+	}
+	
+	for (int column = 0; column < 4; column++)
+	{
+		for (int row = 0; row < 4; row++)
+		{
+			Position currPos;
+			assignCurrentPosition(currPos);
+			
+			moveToLocation(20, currPos, pattern.positions[column][row]);
+			pattern.positions[column][row].color = SensorValue[S2];
+			wait10Msec(250);
+		}
+	}
+
+	/*/ To add: color scanning program. 
+	pattern.positions[3][3].color = 2; // Meaning of this: all four outer rim positions have color 1 (black)
+	pattern.positions[2][3].color = 2;
+	pattern.positions[1][3].color = 2;
+	pattern.positions[0][3].color = 2;
+	/*/
 }
 
 
