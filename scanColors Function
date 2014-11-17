@@ -19,3 +19,21 @@ void scanColors(Grid & pattern, Grid & colorPattern)
 		}
 	}
 }
+
+int getColor()
+{
+	int colours[6];
+	for (int i = 0; i < 100; i++)
+	{
+		colours[SensorValue[S2]]++;
+		wait1Msec(5);
+	}
+
+	int maxIndex = 0;
+	for (int i = 1; i < 6; i++)
+	{
+		if (colours[i] > colours[maxIndex])
+			maxIndex = i;
+	}
+	return maxIndex;
+}
