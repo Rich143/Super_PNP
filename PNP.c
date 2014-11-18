@@ -1,5 +1,5 @@
 //Insert title comments//Insert title comments
-
+const int SCANSPEED = 20;
 typedef struct
 {
 	int angleA;
@@ -10,11 +10,11 @@ typedef struct
 
 typedef struct
 {
-	Position positions[4][4];
+	Position positions[3][3];
 } Grid;
 
 void putDown(Position & currentPosition, int row, int mSpeed);
-void placeBlock(Position & startPosition, Position & endPosition, int mSpeed, int row, Position & currentPosition);
+void placeBlock(Position & startPosition, Position & endPosition, int mSpeed, int row, int placeRow, Position & currentPosition);
 void assignPosition(int angleA, int angleB, int angleC, Position & pos);
 void assignCurrentPosition(Position & pos);
 int getAbsMax(int a, int b);
@@ -23,21 +23,33 @@ bool reachedAngle(int encoder, int endAngle, int dir);
 void move(int speed, int rotateCCW, int innerArmUp, int outerArmUp);
 void calibrateMotor(tMotor motor_name);
 void calibrate();
-void pickUp();
+void pickUp(Position & currentPosition, int row, int mSpeed);
 void motorsOff();
 void checkIfDone();
 void displayAngles(Position pos);
 void moveToLocation(int speed, Position currentPosition, Position endPosition);
 int roundSpeed(float val);
-void setPositions(Grid & pattern, Grid & colorPattern);
-void scanColors(Grid & pattern, Grid & colorPattern);
+void setPositions(Grid & pattern, Grid & colorPattern, Grid & scanGrid);
+void scanColors(Grid & pattern, Grid & colorPattern, Grid & scanGrid);
+int getColor();
+void returnToStart();
 
 task main()
-{	
-	SensorType[S1] = sensorTouch;
-	SensorType[S2] = sensorCOLORFULL;
-	Grid pattern, colorPattern;
-	setPositions(pattern, colorPattern);
+{
+	SensorType[S4] = sensorTouch;
+	SensorType[S1] = sensorCOLORFULL;
+
+	/*while (true)
+	{
+		int color = getColor();
+		nxtDisplayString(0, "Color: %d", color);
+	}
+	*/
+
+
+
+	Grid pattern, colorPattern, scanGrid;
+	setPositions(pattern, colorPattern, scanGrid);
 
 	calibrate();
   Position startPosition;
@@ -46,49 +58,59 @@ task main()
 	startPosition.angleC = 0;
 	startPosition.color = 0;
 	displayAngles(startPosition);
-	
+
 	Position currentPosition;
-	
+
 	currentPosition.angleA = 0;
 	currentPosition.angleB = 90;
 	currentPosition.angleC = 0;
 	currentPosition.color = 0;
 	
-	moveToLocation(20, currentPosition, colorPattern.positions[2][0]);
-	wait10Msec(100);
-	nxtDisplayString(0, "Col: %d", SensorValue[S2];
-	wait1Msec(1000);
+	scanColors(pattern, colorPattern, scanGrid);
+
+	//placeBlock(colorPattern.positions[0][0], pattern.positions[0][0], 20, 0, currentPosition);
 
 
-	//scanColors(pattern, colorPattern);
+	calibrate();
+
+	currentPosition.angleA = 0;
+	currentPosition.angleB = 90;
+	currentPosition.angleC = 0;
+	currentPosition.color = 0;
 	
+	while (nNxtButtonPressed == -1);
+	while (nNxtButtonPressed != -1);
 
-	
-	/*int colorNeeded, pickupColumn, pickupRow;
-	for (int column = 3; column >= 0; column--)
+	int colorNeeded, pickupColumn, pickupRow;
+	for (int column = 2; column >= 0; column--)
 	{
-		for (int row = 3; row >= 0; row--)
+		for (int row = 2; row >= 0; row--)
 		{
 			colorNeeded = pattern.positions[column][row].color;
 			// 1 - black, 2 - blue, 3 - green, 4 - yellow, 5 - red, 6 - white
-			pickupColumn = colorNeeded - 2;
+			pickupColumn = colorNeeded - 3;
 			pickupRow = 0;
-			
+
 			while (colorPattern.positions[pickupColumn][pickupRow].color == 0)
 			{
+				nxtDisplayString(0,"row: %d,col: %d",row, column);
+				nxtDisplayString(1,"%d", colorPattern.positions[pickupColumn][pickupRow].color);
+				wait10Msec(200);
 				pickupRow++;
 			}
-			colorPattern.positions[pickupColumn][pickupRow].color = 0; // color = 0 means the block has been used 
-			
+			colorPattern.positions[pickupColumn][pickupRow].color = 0; // color = 0 means the block has been used
+
+			placeBlock(colorPattern.positions[pickupColumn][pickupRow], pattern.positions[column][row], 20, pickupRow, row, currentPosition);
+			returnToStart();
+			/*
 			moveToLocation(20, currentPosition, colorPattern.positions[pickupColumn][pickupRow]);
-			wait10Msec(100);
-			
 			moveToLocation(20, currentPosition, pattern.positions[column][row]);
+			*/
 		}
 	}
-	
-	moveToLocation(20, currentPosition, startPosition);
-	*/
+
+	returnToStart();
+
 }
 
 // Returns the absolute maximum of two integers
@@ -189,14 +211,14 @@ void moveToLocation(int speed, Position currentPosition, Position endPosition)
 	assignCurrentPosition(currentPosition);
 }
 
-void placeBlock(Position & startPosition, Position & endPosition, int mSpeed, int row, Position & currentPosition)
+void placeBlock(Position startPosition, Position endPosition, int mSpeed, int row, int placeRow, Position & currentPosition)
 {
 	Position upPosition;
 	upPosition.angleA = 0;
 	upPosition.angleB = 90;
 	upPosition.angleC = -90;
 	upPosition.color = 0;
-	
+
 	moveToLocation(mSpeed, currentPosition, startPosition);
 	wait10Msec(10);
 	pickUp(currentPosition, row, mSpeed);
@@ -205,7 +227,7 @@ void placeBlock(Position & startPosition, Position & endPosition, int mSpeed, in
 	wait10Msec(10);
 	moveToLocation(mSpeed, currentPosition, endPosition);
 	wait10Msec(10);
-	putDown(currentPosition, row, mSpeed);
+	putDown(currentPosition, placeRow, mSpeed);
 }
 
 void calibrateMotor(tMotor motor_name)
@@ -226,7 +248,7 @@ void calibrateMotor(tMotor motor_name)
 			doneCalibration = true;
 		}
 	}
-	
+
 	while(nNxtButtonPressed != -1);
 }
 
@@ -247,11 +269,14 @@ void calibrate()
 // and stop the program
 void checkIfDone()
 {
-	if (SensorValue[S1])
+	if (SensorValue[S4])
 	{
 		motorsOff();
+		nxtDisplayString(0, "MOTORS OFF");
+		wait1Msec(1000);
+		returnToStart();
 		nxtDisplayString(0, "Program Complete!");
-		while (1);
+		while ( true );
 	}
 }
 
@@ -302,7 +327,7 @@ void pickUp(Position & currentPosition, int row, int mSpeed)
 		move(mSpeed, 0, 20, -5);
 		move(mSpeed, 0, 20, 10);
 	}
-	
+
 	assignCurrentPosition(currentPosition);
 }
 
@@ -314,21 +339,21 @@ void putDown(Position & currentPosition, int row, int mSpeed)
 		move(mSpeed, 0, 5, -20);
 		move(mSpeed, 0, 40, 10);
 	}
-	
+
 	else if (row == 1)
 	{
 		move(mSpeed, 0, -20, -5);
 		move(mSpeed, 0, 5, -20);
 		move(mSpeed, 0, 40, -10);
 	}
-	
+
 	else if (row == 2)
 	{
 		move(mSpeed, 0, -15, -10);
 		move(mSpeed, 0, 5, -15);
 		move(mSpeed, 0, 40, -10);
 	}
-	
+
 	assignCurrentPosition(currentPosition);
 }
 
@@ -343,11 +368,15 @@ int roundSpeed(float val)
 }
 
 // Predetermined positions of each gridspace
-void setPositions(Grid & pattern, Grid & colorPattern)
+void setPositions(Grid & pattern, Grid & colorPattern, Grid & scanGrid)
 {
 	// FIRST ROW
 	for (int i = 0; i < 3; i++)
 	{
+		scanGrid.positions[i][0].angleA = 66 + i*25;
+		scanGrid.positions[i][0].angleB = 77;
+		scanGrid.positions[i][0].angleC = -110;
+
 		pattern.positions[i][0].angleA = 66 + i*25;
 		pattern.positions[i][0].angleB = 75;
 		pattern.positions[i][0].angleC = -115;
@@ -359,6 +388,10 @@ void setPositions(Grid & pattern, Grid & colorPattern)
 	// SECOND ROW
 	for (int i = 0; i < 3; i++)
 	{
+		scanGrid.positions[i][1].angleA = 66 + i*25;
+		scanGrid.positions[i][1].angleB = 66;
+		scanGrid.positions[i][1].angleC = -97;
+
 		pattern.positions[i][1].angleA = 66 + i*25;
 		pattern.positions[i][1].angleB = 65;
 		pattern.positions[i][1].angleC = -85;
@@ -370,6 +403,10 @@ void setPositions(Grid & pattern, Grid & colorPattern)
 	// THIRD ROW
 	for (int i = 0; i < 3; i++)
 	{
+		scanGrid.positions[i][2].angleA = 66 + i*25;
+		scanGrid.positions[i][2].angleB = 53;
+		scanGrid.positions[i][2].angleC = -73;
+
 		pattern.positions[i][2].angleA = 66 + i*25;
 		pattern.positions[i][2].angleB = 55;
 		pattern.positions[i][2].angleC = -65;
@@ -381,45 +418,10 @@ void setPositions(Grid & pattern, Grid & colorPattern)
 
 }
 
-
-void scanColors(Grid & pattern, Grid & colorPattern)
-{
-	// For the color grid:	
-	for (int column = 0; column < 4; column++)
-	{
-		for (int row = 0; row < 4; row++)
-		{
-			colorPattern.positions[column][row].color = column+2; // uses blue, green, yellow, red (2,3,4,5 respectively)
-		}
-	}
-	
-	for (int column = 0; column < 4; column++)
-	{
-		for (int row = 0; row < 4; row++)
-		{
-			Position currPos;
-			assignCurrentPosition(currPos);
-			
-			moveToLocation(20, currPos, pattern.positions[column][row]);
-			pattern.positions[column][row].color = SensorValue[S2];
-			wait10Msec(250);
-		}
-	}
-
-	/*/ To add: color scanning program. 
-	pattern.positions[3][3].color = 2; // Meaning of this: all four outer rim positions have color 1 (black)
-	pattern.positions[2][3].color = 2;
-	pattern.positions[1][3].color = 2;
-	pattern.positions[0][3].color = 2;
-	/*/
-}
-
-
-
 void assignCurrentPosition(Position & pos)
-{	
-	pos.angleA = nMotorEncoder[motorA] / 7; 
-	pos.angleB = 90 + nMotorEncoder[motorB] / 5; // 90 in front since arm starts at 90 degrees 
+{
+	pos.angleA = nMotorEncoder[motorA] / 7;
+	pos.angleB = 90 + nMotorEncoder[motorB] / 5; // 90 in front since arm starts at 90 degrees
 	pos.angleC = nMotorEncoder[motorC] / 3;
 }
 
@@ -428,4 +430,62 @@ void assignPosition(int angleA, int angleB, int angleC, Position & pos)
 	pos.angleA = angleA;
 	pos.angleB = angleB;
 	pos.angleC = angleC;
+}
+
+int getColor()
+{
+	int colors[7] = {0,0,0,0,0,0,0};
+	for (int i = 0; i < 100; i++)
+	{
+		int currColor = SensorValue[S1];
+		colors[currColor]++;
+		wait1Msec(5);
+	}
+
+	for (int i = 0; i < 6; i++){
+		nxtDisplayString(i, "%d: %d", i, colors[i]);
+	}
+
+
+	int maxIndex = 0;
+	for (int i = 1; i < 6; i++)
+	{
+		if (colors[i] > colors[maxIndex])
+			maxIndex = i;
+	}
+	return maxIndex;
+}
+
+void scanColors(Grid & pattern, Grid & colorPattern, Grid & scanGrid)
+{
+	// For the color grid:
+	for (int column = 0; column < 3; column++)
+	{
+		for (int row = 0; row < 3; row++)
+			colorPattern.positions[column][row].color = column + 3; // uses blue, green, yellow, red (2,3,4,5 respectively)
+	}
+
+	for (int column = 0; column < 3; column++)
+	{
+		for (int row = 0; row < 3; row++)
+		{
+			Position currPos;
+			assignCurrentPosition(currPos);
+
+			moveToLocation(SCANSPEED, currPos, scanGrid.positions[column][row]);
+			wait1Msec(1500);
+			int color = getColor();
+			nxtDisplayString(7, "Color: %d", color);
+			pattern.positions[column][row].color = color;
+		}
+	}
+	returnToStart();
+}
+
+void returnToStart()
+{
+	Position currPos, startPosition;
+	assignCurrentPosition(currPos);
+	assignPosition(0,90,0, startPosition);
+	moveToLocation(20, currPos, startPosition);
 }
